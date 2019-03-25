@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Moria CTF</title>
+
+	<!-- BootstrapCDN -- >
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<!-- Google Fonts -->
+  	<link href="https://fonts.googleapis.com/css?family=Droid+Sans+Mono|Inconsolata" rel="stylesheet">
+
+  	<!-- style sheet -->
+	<link rel="stylesheet" type="text/css" href="/css/style.css">
+
+	<!--Google Analytics -->
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-52352656-1', 'auto');
+	ga('send', 'pageview');
+	</script>
+
+	<!--Prism Theme-->
+	<link href="/themes/prism.css" rel="stylesheet" />
+</head>
+
+<body>
+<!-- Prism JS -->
+	<script src="/js/prism.js"></script>
+
+	<div class="jumbotron text-center">
+	  <h1>Moria CTF</h1>
+	  <p>May 11st, 2017</p>
+	  <p>CTF Write-Up</p>
+	</div>
+
+	<div class="container">
+	  <div class="row">
+	    <div class="col-sm-12">
+	    <a href="https://jessecbrown.com"><----Back to jessecbrown.com</a>
+	      <h3>Background</h3>
+	      <p>This write-up covers the Moria CTF on <a href="https://www.vulnhub.com/entry/moria-1,187/" target="_blank">Vulnhub.com</a></p>
+	      <h3>Reconnaissance</h3>
+	      <p>To get started, let's take a look and see what NMAP can tell us:</p>
+	      <br>
+	      <!-- NMAP Code-->
+			<pre><code class="language-none">
+root@kali:~/Desktop# nmap -sSVC -p- 192.168.56.104
+
+Starting Nmap 7.25BETA2 ( https://nmap.org ) at 2017-05-12 13:24 EDT
+Nmap scan report for 192.168.56.104
+Host is up (0.0055s latency).
+Not shown: 65532 closed ports
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     vsftpd 2.0.8 or later
+22/tcp open  ssh     OpenSSH 6.6.1 (protocol 2.0)
+| ssh-hostkey:
+|   2048 47:b5:ed:e3:f9:ad:96:88:c0:f2:83:23:7f:a3:d3:4f (RSA)
+|_  256 85:cd:a2:d8:bb:85:f6:0f:4e:ae:8c:aa:73:52:ec:63 (ECDSA)
+80/tcp open  http    Apache httpd 2.4.6 ((CentOS) PHP/5.4.16)
+|_http-server-header: Apache/2.4.6 (CentOS) PHP/5.4.16
+|_http-title: Gates of Moria
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 30.04 seconds
+
+			</code></pre>
+			<br>
+			<p>Interesting. So we have <code>FTP</code> <code>SSH</code>and an Apache Web Server. The web page just displays a .jpg of what appears to be the gate to Moria: </p>
+			<br>
+				<img class="img-responsive" src="/images/Moria/moria.jpg" alt="The Gate To Moria" width="410">
+			<br>
+			<br>
+			<p><code>DIRB</code> uncovered this page which returns what appears to be randomized line of text: </p>
+			<br>
+<pre><code class="language-none">
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+Dain:"Is that human deaf? Why is it not listening?"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+Oin:"Stop knocking!"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+"Is this the end?"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+Oin:"Stop knocking!"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+"Is this the end?"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+Nain:"Will the human get the message?"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+"Eru! Save us!"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+Telchar to Thrain:"That human is slow, don't give up yet"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+"We will die here.."
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+Nain:"Will the human get the message?"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+"Too loud!"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+Dain:"Is that human deaf? Why is it not listening?"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+"Eru! Save us!"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+Oin:"Stop knocking!"
+root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
+"Too loud!"
+</code></pre>
+			<br>
+			<p>The text seems to be hinting that we should be listening instead of knocking. At this point I fired up WireShark and saw the below TCP connections back to my machine. </p>
+			<br>
+			<img class="img-responsive" src="/images/Moria/wireshark.png" alt="Wireshark Capture">
+			<br>
+			<br>
+			<p> At first I thought it may be trying to send a message back to me. I started NetCat listening on all of the ports (77,101,108,111, and 110). NetCat could catch the TCP connection and send back a [SYN, ACK] to the VM but the connection was quickly reset by the VM. I wasn't quite sure what to do with the connections so I started looking at FTP server. When I connected I was sent back the following banner. Looks like Balrog could be a username. </p>
+			<br>
+<pre><code class="language-none">
+root@kali:~Desktop# ftp 192.168.56.104
+Connected to 192.168.56.104.
+220 Welcome Balrog!
+Name (192.168.56.104:root):
+</code></pre>
+			<br>
+			<h3>Gaining Access</h3>
+			<br>
+			<p>I tried bruteforcing the FTP password using Metasploit but I quickly was locked out after a few failed attempts. I check for any relevant exploits but also came up empty.
+			Then it dawned on me, I was given the FTP username so perhaps I was also given the password? I went back to the Wireshark capture and took a closer look. The TCP connections the VM was sending me all had different port numbers except for 108, which was used twice. Was this a password? I tried the port numbers as the password for Balrog without success. Then I looked up the port numbers in an ascii table and realized they spell out the word Mellon in ascii code. Boom! We are in. </p>
+			<br>
+			<p>My first objective was to upload a reverse shell somewhere in the web servers directory. Unfortunately, that was not possible and modifying most any other part of the VM was impossible as the Balrog user didn't seem to have much permission to write files anywhere. I did however, find this directory which wasn't reviled during the <code>DIRB</code> scan:</p>
+			<br>
+<pre><code class="language-none">
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+drwxr-xr-x    2 0        0              23 Mar 12 20:38 QlVraKW4fbIkXau9zkAPNGzviT3UKntl
+-r--------    1 48       48             85 Mar 12 19:55 index.php
+-r--------    1 48       48         161595 Mar 11 23:12 moria.jpg
+drwxr-xr-x    3 0        0              15 Mar 12 04:50 w
+226 Directory send OK.
+ftp>
+</code></pre>
+    		<br>
+    		<p>The directory revield a table with some usernames and what appear to be hashed passwords. In the comments of the page there was some salts and a hint as to which kind of hashing algorthm was used:</p>
+    		<br>
+    			<img class="img-responsive" src="/images/Moria/hashes.png" alt="hashes" width="525">
+    		<br>
+    		<br>
+   			<p>With 9 passwords to crack I decided to fire up a AWS P2 spot instance. The instance I rented had a Nvidia Tesla K80 GPU. I installed the required Nvidia drivers and uploaded hashcat and the rockyou.txt wordlist. In all of 10 seconds hashcat had found all 9 passwords:</p>
+   			<br>
+   				<img class="img-responsive" src="/images/Moria/hashcat.png" alt="hashcat" width="500">
+   			<br>
+   			<br>
+   				<p>None of the users had FTP access. However, I was able to SSH using the Ori account. In Ori's home directory was the below poem: </p>
+   			<br>
+   			<pre><code class="language-none">
+-bash-4.2$ cat poem.txt
+Ho! Ho! Ho! to the bottle I go
+To heal my heart and drown my woe.
+Rain may fall and wind may blow,
+And many miles be still to go,
+But under a tall tree I will lie,
+And let the clouds go sailing by.
+
+PS: Moria will not fall!
+</code></pre>
+			<br>
+			<p>Unfortunately, the poem didn't seem to offer any hints. This is where I spent the majority of my time with this CTF. Baesed on how this CTF had gone so far I was pretty sure it wouldn't involve any carzy exploits. g0tmi1k's guide to linux privilege escalation came in handy. I went through most of the guide until I reached his section on private keys. Earlier I had noticed there was a SSH key located in ~/.ssh/ and under closer inspection the loopback address of 127.0.0.1 was in the known_hosts list. Interesting. The id_rsa key didn't appear to be for Ori... after a few attempts I realized I could SSH as root without using a password! Here's the flag: </p>
+			<br>
+<pre><code class="language-none">
+-bash-4.2$ cat ~/.ssh/known_hosts
+127.0.0.1 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCuLX/CWxsOhekXJRxQqQH/Yx0SD+XgUpmlmWN1Y8cvmCYJslOh4vE+I6fmMwCdBfi4W061RmFc+vMALlQUYNz0=
+
+-bash-4.2$ ssh -i id_rsa root@127.0.0.1
+Last failed login: Tue May  9 01:19:10 EDT 2017 on pts/0
+There were 4 failed login attempts since the last successful login.
+Last login: Tue Mar 14 23:56:24 2017
+[root@Moria ~]# cat flag.txt
+“All that is gold does not glitter,
+Not all those who wander are lost;
+The old that is strong does not wither,
+Deep roots are not reached by the frost.
+
+From the ashes a fire shall be woken,
+A light from the shadows shall spring;
+Renewed shall be blade that was broken,
+The crownless again shall be king.”
+
+All That is Gold Does Not Glitter by J. R. R. Tolkien
+
+I hope you suff.. enjoyed this VM. It wasn't so hard, was it?
+-Abatchy
+
+
+</code></pre>
+		<br>
+		<p>Thanks to @abatchy for a good challenge, and @g0tmi1k for hosting on Vulnhub! </p>
+    	<br>
+	    </div>
+	  </div>
+	</div>
+
+<footer style="width: 100%; text-align: center; padding-top: 25px; color: #98999E;">
+	<div class="col-md-16 text-center">
+		<a href="https://twitter.com/jessecarlbrown" class="twitter-follow-button" data-show-count="false">Follow @jessecarlbrown</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+		<br>
+		<br>
+		<span>Jesse Brown © 2019<span>
+		</span></span></footer>
+		<br>
+		<br>
+
+	</div>
+</body>
+</html>
