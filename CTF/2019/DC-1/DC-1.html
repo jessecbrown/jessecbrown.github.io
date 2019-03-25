@@ -56,32 +56,27 @@
 				<br>
 				<p>There are five flags in total, but the ultimate goal is to find and read the flag in root's home directory. You don't even need to be root to do this, however, you will require root privileges.</p>
 	      <h3>Reconnaissance</h3>
-	      <p>To get started, let's take a look and see what NMAP can tell us:</p>
+	      <p>To get started, let's see what NMAP finds:</p>
 	      <br>
 	      <!-- NMAP Code-->
 			<pre><code class="language-none">
-root@kali:~/Desktop# nmap -sSVC -p- 192.168.56.104
+				root@kali:~# nmap -sSV -p- 192.168.18.129
 
-Starting Nmap 7.25BETA2 ( https://nmap.org ) at 2017-05-12 13:24 EDT
-Nmap scan report for 192.168.56.104
-Host is up (0.0055s latency).
-Not shown: 65532 closed ports
-PORT   STATE SERVICE VERSION
-21/tcp open  ftp     vsftpd 2.0.8 or later
-22/tcp open  ssh     OpenSSH 6.6.1 (protocol 2.0)
-| ssh-hostkey:
-|   2048 47:b5:ed:e3:f9:ad:96:88:c0:f2:83:23:7f:a3:d3:4f (RSA)
-|_  256 85:cd:a2:d8:bb:85:f6:0f:4e:ae:8c:aa:73:52:ec:63 (ECDSA)
-80/tcp open  http    Apache httpd 2.4.6 ((CentOS) PHP/5.4.16)
-|_http-server-header: Apache/2.4.6 (CentOS) PHP/5.4.16
-|_http-title: Gates of Moria
-
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 30.04 seconds
+				Starting Nmap 7.70 ( https://nmap.org ) at 2019-03-24 21:37 EDT
+				Nmap scan report for 192.168.18.129
+				Host is up (0.00055s latency).
+				Not shown: 65531 closed ports
+				PORT      STATE SERVICE VERSION
+				22/tcp    open  ssh     OpenSSH 6.0p1 Debian 4+deb7u7 (protocol 2.0)
+				80/tcp    open  http    Apache httpd 2.2.22 ((Debian))
+				111/tcp   open  rpcbind 2-4 (RPC #100000)
+				35352/tcp open  status  1 (RPC #100024)
+				MAC Address: 00:0C:29:64:56:73 (VMware)
+				Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 			</code></pre>
 			<br>
-			<p>Interesting. So we have <code>FTP</code> <code>SSH</code>and an Apache Web Server. The web page just displays a .jpg of what appears to be the gate to Moria: </p>
+			<p>Looks like we have <code>SSH</code> and an Apache Web Server. Let's see what what Apache is servring: </p>
 			<br>
 				<img class="img-responsive" src="/images/Moria/moria.jpg" alt="The Gate To Moria" width="410">
 			<br>
