@@ -1,0 +1,68 @@
+==================================================================
+https://keybase.io/jessecbrown
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://jessecbrown.com
+  * I am jessecbrown (https://keybase.io/jessecbrown) on keybase.
+  * I have a public key with fingerprint 5C80 914E 4858 F085 A697  F056 164F A0A9 32FD 23FE
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "0101a5670daf51ce5f2a685cac6978bda1d78e4c4704019c1fc6fc53b0fbb34215390a",
+            "fingerprint": "5c80914e4858f085a697f056164fa0a932fd23fe",
+            "host": "keybase.io",
+            "key_id": "164fa0a932fd23fe",
+            "kid": "0101a5670daf51ce5f2a685cac6978bda1d78e4c4704019c1fc6fc53b0fbb34215390a",
+            "uid": "49716d85f8bf6052ce336d9c6172ca19",
+            "username": "jessecbrown"
+        },
+        "service": {
+            "hostname": "jessecbrown.com",
+            "protocol": "https:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1480859421,
+    "expire_in": 157680000,
+    "prev": "2bee806f0a7ce55b80d80199e095b91beb59f0cfd17e0129f4ab684277c9b651",
+    "seqno": 7,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.58
+Comment: https://keybase.io/crypto
+
+yMIoAnicrZJbSBVBGMePpl2ELvaQ9FDSdkHrYDN7dvZyTpGgRaVFEJEP4mlmdkbX
+o7vH3aMmopUVGFQS1amHEgWRIoKkG9mFkrAgqkNUhkpKRAVdIaggqGalnuqxeRlm
+vv/3m//3Z25PnxTISlt7ObB6/limmXbv1sn6QFlx7rxmiThmkxRulmJsYmM1JvMS
+0ZhlSmEJQAAxUjVgYo4gZYjLWNURxVQ1NJ2YGJqazhSqaEAB0KCQU5VTFCKAExJS
+ZIhCBsBSUOKWXcncuGvZCYFFVAcGVJiiI50DHWFB4wCpUFU4BtgIydyUQ5yJxirH
+8zuEOYI9VmA54k4cohP2/qH/z77rJ3CKoUHV1BHXCVcBkikLhVTToCrUZIqh4Qs9
+5tq4lgl1NfM8RonrNNpSS1AShQaLMj9bf5i/RQXUqRWEuOskHOrUiGJVIhH3wn5z
+oinuqxsZif7mRIllmyJN0dHAXM9ybCkMhZImLB8MFV0EaogRghLbHrdcFrV8BdJU
+HYjlv8MaBFImjOlA5QBrIh9EdGDqIgqDAQMRAxJGkMEB5SbUGICywRVMVF2RNY0a
+REVQ8iersx0prAmbuFIgPavSxol6l0ktAzfLMwJpWYHJmen+LwtkTZv15+9NWTPl
+Z9HruwOH56360ZL5aXuk4VD33efPcpUtn7PzR/eH0o6e6btXNp6RXO8d+Vj6hVes
+TOW2L+zOvpDH5kRqT7cfjEg59oHqzoHlHZ03Zx4bXva9t78iq0YGT04UuB2X9+UF
+tvYuuVH+c7SUWl+HFjz4kJ4yZ5ekn69iWx89T6/cYZ4916HOGA22HZ+9Z+mDaT07
+3w4VJ7X3bVOTzdeGkrGZrV3fa6YPluR2FI/sGnzHr7Pw7mWBq+b93WCw70r5nZV4
+Q+pp8PXyS62vni0ez+lf9DUW+Tb3R157XerNulebLta9eDjyMr9wRc9Y49ip20VF
+n7u2lVwafiwl1ba5hZHh8MbNL/YW/gKsPj+0
+=fK7P
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/jessecbrown
+
+==================================================================
