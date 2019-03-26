@@ -359,7 +359,7 @@ www-data@DC-1:/var/www$
 	3 rows in set (0.01 sec)
 </code></pre>
 		<br>
-		<p>Hashcat finished cracking the admin and Fred password. The admin's password is MyPassword and Fred's is 53cr3t. But for some reason I couldn't log in via a browser. Maybe I broke Drupal with the drupalgeddon2 exploit?
+		<p>Hashcat finished cracking the admin and Fred password. The admin's password is <code>MyPassword</code> and Fred's is <code>53cr3t</code>. But for some reason I couldn't log in via a browser. Maybe I broke Drupal with the drupalgeddon2 exploit?
 			After consulting Google I found Drupal stores it's content in <code>nodes</code> and the body of the text is stored in the <code>field_data_body</code> table.. and that's where we find the third flag:<p>
 		<br>
 		<pre><code class="language-none">
