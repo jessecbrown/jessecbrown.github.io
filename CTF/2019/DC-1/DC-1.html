@@ -76,44 +76,11 @@
 
 			</code></pre>
 			<br>
-			<p>Looks like we have <code>SSH</code> and an Apache Web Server. Let's see what what Apache is servring: </p>
-			<br>
-				<img class="img-responsive" src="/images/Moria/moria.jpg" alt="The Gate To Moria" width="410">
-			<br>
-			<br>
-			<p><code>DIRB</code> uncovered this page which returns what appears to be randomized line of text: </p>
+			<p>Browsing to the site shows a Drupal login page. <code>DRIB</code> found a few interesting items, but I couldn't find a CHANGELOG.txt to identify the Drupal version. However, viewing the source code shows it is running
+			Drupal 7 on line 17: </p>
 			<br>
 <pre><code class="language-none">
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-Dain:"Is that human deaf? Why is it not listening?"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-Oin:"Stop knocking!"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-"Is this the end?"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-Oin:"Stop knocking!"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-"Is this the end?"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-Nain:"Will the human get the message?"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-"Eru! Save us!"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-Telchar to Thrain:"That human is slow, don't give up yet"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-"We will die here.."
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-Nain:"Will the human get the message?"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-"Too loud!"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-Dain:"Is that human deaf? Why is it not listening?"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-"Eru! Save us!"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-Oin:"Stop knocking!"
-root@kali:~/Desktop# curl 192.168.56.104/w/h/i/s/p/e/r/the_abyss/
-"Too loud!"
+			<meta name="Generator" content="Drupal 7 (http://drupal.org)" />
 </code></pre>
 			<br>
 			<p>The text seems to be hinting that we should be listening instead of knocking. At this point I fired up WireShark and saw the below TCP connections back to my machine. </p>
