@@ -224,7 +224,7 @@ www-data@DC-1:/var/www$
 					      'prefix' => '',
 </code></pre>
 			<br>
-			<p>I took a look through the DrupalDB and found hashed passwords for the Admin and a user named Fred. I fired up Hashcat and decided to get it cracking while I took a look around the host.</p>
+			<p>I took a look through the DrupalDB and found hashed passwords for the Admin and a user named Fred. I fired up Hashcat and decided to get it cracking while I took a look around the host. The hashcat mode for durpal passwords is 1800.</p>
 			<br>
 <pre><code class="language-none">
 	www-data@DC-1:/var/www$ mysql -u dbuser -p
@@ -359,6 +359,29 @@ www-data@DC-1:/var/www$
 	3 rows in set (0.01 sec)
 </code></pre>
 		<br>
+		<p>Hashcat finished cracking the admin and Fred password. The admin's password is MyPassword and Fred's is 53cr3t. But for some reason I couldn't log in via a browser. Maybe I broke Drupal with the drupalgeddon2 exploit?
+			After consulting Google I found Drupal stores it's content in <code>nodes</code> and the body of the text is stored in the field_data_body table.. and that's where we find the third flag:<p>
+		<br>
+		<pre><code class="language-none">
+			mysql> select * from node;
+			select * from node;
+			+-----+------+------+----------+-------+-----+--------+------------+------------+---------+---------+--------+------+-----------+
+			| nid | vid  | type | language | title | uid | status | created    | changed    | comment | promote | sticky | tnid | translate |
+			+-----+------+------+----------+-------+-----+--------+------------+------------+---------+---------+--------+------+-----------+
+			|   1 |    1 | page | und      | Main  |   2 |      1 | 1550582250 | 1550582250 |       0 |       0 |      0 |    0 |         0 |
+			|   2 |    2 | page | und      | flag3 |   1 |      0 | 1550582412 | 1550583860 |       0 |       0 |      0 |    0 |         0 |
+			+-----+------+------+----------+-------+-----+--------+------------+------------+---------+---------+--------+------+-----------+
+			2 rows in set (0.00 sec)
+
+			mysql> select body_value from field_data_body where entity_id = 2;
+			select body_value from field_data_body where entity_id = 2;
+			+------------------------------------------------------------------------------------------------------------------------------+
+			| body_value                                                                                                                   |
+			+------------------------------------------------------------------------------------------------------------------------------+
+			| Special PERMS will help FIND the passwd - but you'll need to -exec that command to work out how to get what's in the shadow. |
+			+------------------------------------------------------------------------------------------------------------------------------+
+			1 row in set (0.00 sec)
+</code></pre>
 		<p>Thanks to @abatchy for a good challenge, and @g0tmi1k for hosting on Vulnhub! </p>
     	<br>
 	    </div>
