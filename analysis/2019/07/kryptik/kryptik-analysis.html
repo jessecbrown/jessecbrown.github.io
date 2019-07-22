@@ -43,8 +43,8 @@
 
 	<div class="jumbotron text-center">
 	  <h1>Kryptik</h1>
-	  <p>July 22nd, 2019</p>
 	  <p>Malware Analysis</p>
+	  <p>July 22nd, 2019</p>
 	</div>
 
 	<div class="container">
@@ -53,12 +53,11 @@
 	    <a href="https://jessecbrown.com"><----Back to jessecbrown.com</a>
 	      <h3>Abstract</h3>
 	      <p>Recently I was analyzing an interesting Kryptik sample and realized there aren't very many detailed analysis's of this malware family.
-			The sample I came across seems fairly straight-forward and has some unique characteristics. What follows is my attempt and providing some analysis for the community. 
-
-			This malware family is identified by Microsoft Defender as <a href="https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan:Win32/Kryptik&ThreatID=2147727763"></a>Trojan:Win32/Kryptik</a>. At the time of this writing Defender was correctly identifying this sample. 
-			
-			I've tried to structure this write-up around MITRE's ATTACK framework and provide links to Red Canary's Atomic Red Team tests to show defenders how they can detect the TTPs. 
-			</p>
+			The sample I came across seems fairly straight-forward and has some unique characteristics. What follows is my attempt and providing some analysis for the community. </p>
+			<br>
+			<p>This malware family is identified by Microsoft Defender as <a href="https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan:Win32/Kryptik&ThreatID=2147727763"></a>Trojan:Win32/Kryptik</a>. At the time of this writing Defender was correctly identifying this sample. </p>
+			<br>
+			<p>I've tried to structure this write-up around <a href="https://attack.mitre.org/matrices/enterprise/">MITRE's ATTACK framework</a> and provide links to Red Canary's <a href="https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/index.md">Atomic Red Team</a> tests to show defenders how they can detect the TTPs.</p>
 			<br>
 			<h3>Initial Access/Delivery</h3>
 			<h3>Execution</h3>
@@ -86,7 +85,7 @@
 		<a href="https://twitter.com/jessecarlbrown" class="twitter-follow-button" data-show-count="false">Follow @jessecarlbrown</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 		<br>
 		<br>
-		<span>&copy;Jesse Brown <script>new Date().getFullYear()>2010&&document.write(+new Date().getFullYear());</script><span>
+		<span>Copyright &copy; <script>new Date().getFullYear()>2010&&document.write(+new Date().getFullYear());</script>, Jesse Brown<span>
 		</span></span></footer>
 		<br>
 		<br>
