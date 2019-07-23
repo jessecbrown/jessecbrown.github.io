@@ -55,18 +55,18 @@
 	      <p>Recently I was analyzing an interesting Kryptik sample and realized there aren't very many detailed analysis's of this malware family.
 			The sample I came across seems fairly straight-forward and has some unique characteristics. What follows is my attempt and providing some analysis for the community. </p>
 			<br>
-			<p>This malware family is identified by Microsoft Defender as <a href="https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan:Win32/Kryptik&ThreatID=2147727763"></a>Trojan:Win32/Kryptik</a>. At the time of this writing Defender was correctly identifying this sample. </p>
+			<p>This malware family is identified by Microsoft Defender as <a href="https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan:Win32/Kryptik&ThreatID=2147727763" target="_blank"></a>Trojan:Win32/Kryptik</a>. At the time of this writing Defender was correctly identifying this sample. </p>
 			<br>
-			<p>I've tried to structure this write-up around <a href="https://attack.mitre.org/matrices/enterprise/">MITRE's ATTACK framework</a> and provide links to Red Canary's <a href="https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/index.md">Atomic Red Team</a> tests to show defenders how they can detect the TTPs.</p>
+			<p>I've tried to structure this write-up around <a href="https://attack.mitre.org/matrices/enterprise/" target="_blank">MITRE's ATTACK framework</a> and provide links to Red Canary's <a href="https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/index.md" target="_blank">Atomic Red Team</a> tests to show defenders how they can detect the TTPs.</p>
 			<br>
 			<h3>Initial Access</h3>
-				<p>Initial access is achieved through a <a href="https://attack.mitre.org/techniques/T1193/">spearphishing attachment (T1193)</a>. In this case a spoofed DHL shipping notification. With the attached maldoc <code>sp.doc</code>. </p>
+				<p>Initial access is achieved through a <a href="https://attack.mitre.org/techniques/T1193/" target="_blank">spearphishing attachment (T1193)</a>. In this case a spoofed DHL shipping notification. With the attached maldoc <code>sp.doc</code>. </p>
 				<br>
 				<img src="/analysis/2019/07/kryptik/assets/Kryptikeml.png" alt="Kryptik Email PNG">
 			<h3>Execution</h3>
-			<p>Execution requires the victim to open the maldoc (sp.doc) in a vulnerable version of Microsoft Word <a href="https://attack.mitre.org/techniques/T1203/">T1203</a>. In particular, a version of Word's <a href="https://support.office.com/en-us/article/Equation-Editor-6eac7d71-3c74-437b-80d3-c7dea24fdf3f">Equation Editor</a> (eqnedt32.exe) vulnerable to <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-11882">CVE-2017-11882</a>. 
+			<p>Execution requires the victim to open the maldoc (sp.doc) in a vulnerable version of Microsoft Word (MITRE Id: <a href="https://attack.mitre.org/techniques/T1203/" target="_blank">T1203: Exploitation for Client Execution</a>). In particular, a version of Word's <a href="https://support.office.com/en-us/article/Equation-Editor-6eac7d71-3c74-437b-80d3-c7dea24fdf3f" target="_blank">Equation Editor</a> (eqnedt32.exe) vulnerable to <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-11882" target="_blank">CVE-2017-11882</a>. 
 			CVE-2017-11882 affects all versions of Microsoft Equation Editor that were included with Office 2007, 2010, 2013 and 2016 prior to November 14th 2017. Vulnerable versions of Equation Editor contain a stack buffer overflow vulnerability which will allow an adversary to execute arbitrary code. Eqnedt32.exe does not make use of Data Execution Prevention (DEP) or Address Space Layout Randomization (ASLR) making this a relatively easy vulnerability to exploit.
-			Microsoft patched CVE-2017-11882 and then later removed Equation Editor all together after another memory corruption vulnerability (<a href="https://nvd.nist.gov/vuln/detail/CVE-2018-0802">CVE-2018-0802</a>) was found. Initially it may seem odd for an adversary to use a 17 month old vulnerability, but it's worth noting that if a user did not opt into Office updates they would still have the vulnerable Equation Editor. </p>
+			Microsoft patched CVE-2017-11882 and then later removed Equation Editor all together after another memory corruption vulnerability (<a href="https://nvd.nist.gov/vuln/detail/CVE-2018-0802" target="_blank">CVE-2018-0802</a>) was found. Initially it may seem odd for an adversary to use a 17 month old vulnerability, but it's worth noting that if a user did not opt into Office updates they would still have the vulnerable Equation Editor. </p>
 			<br>
 			<p>What makes this exploit useful for an adversary is it only requires a victim to open the maldoc. There is no need to enable a macro or provide any other additional input.</p>
 			<br>
@@ -74,7 +74,7 @@
 			<p>Opening the maldoc in a hex editor reveals it is a RTF document. In contrast to your typical OOXML document (.docx, .docm, .xlsx, .xlsm, etc.) which contain OLE2 type objects and macros; RTF documents can't contain macros but they can contain OLE1 type objects.
 				An OLE object can contain files, or in this case, an Equation Editor 3.0 object. </p>
 				<br>
-				<p>To verify there is an OLE1 type object embedded in this document you can use <a href="https://blog.didierstevens.com/">Didier Stevens</a> <a href="https://github.com/decalage2/oletools">OLETools</a> script <code>rtfobj.py</code>: </p>
+				<p>To verify there is an OLE1 type object embedded in this document you can use <a href="https://blog.didierstevens.com/" target="_blank">Didier Stevens</a> <a href="https://github.com/decalage2/oletools" target="_blank">OLETools</a> script <code>rtfobj.py</code>: </p>
 			<h3>Persistence</h3>
 			<h3>Privilege Escalation</h3>
 			<h3>Credential Access</h3>
