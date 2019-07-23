@@ -69,6 +69,12 @@
 			Microsoft patched CVE-2017-11882 and then later removed Equation Editor all together after another memory corruption vulnerability (<a href="https://nvd.nist.gov/vuln/detail/CVE-2018-0802">CVE-2018-0802</a>) was found. Initially it may seem odd for an adversary to use a 17 month old vulnerability, but it's worth noting that if a user did not opt into Office updates they would still have the vulnerable Equation Editor. </p>
 			<br>
 			<p>What makes this exploit useful for an adversary is it only requires a victim to open the maldoc. There is no need to enable a macro or provide any other additional input.</p>
+			<br>
+			<h2>Maldoc analysis</h2>
+			<p>Opening the maldoc in a hex editor reveals it is a RTF document. In contrast to your typical OOXML document (.docx, .docm, .xlsx, .xlsm, etc.) which contain OLE2 type objects and macros; RTF documents can't contain macros but they can contain OLE1 type objects.
+				An OLE object can contain files, or in this case, an Equation Editor 3.0 object. </p>
+				<br>
+				<p>To verify there is an OLE1 type object embedded in this document you can use <a href="https://blog.didierstevens.com/">Didier Stevens</a> <a href="https://github.com/decalage2/oletools">OLETools</a> script <code>rtfobj.py</code>: </p>
 			<h3>Persistence</h3>
 			<h3>Privilege Escalation</h3>
 			<h3>Credential Access</h3>
@@ -77,6 +83,8 @@
 			<h3>Collection</h3>
 			<h3>Command and Control</h3>
 			<h3>Exfiltration</h3>
+			<h3>Final Thoughts</h3>
+			<p>A huge thanks to Didier Stevens for making a fantastic library of OLE analysis tools. </p>
 	      <br>
 	      <!-- NMAP Code-->
 			<pre><code class="language-none">
