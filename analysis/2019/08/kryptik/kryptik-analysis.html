@@ -72,7 +72,7 @@
 	      <p>Recently I was analyzing an interesting Kryptik sample and realized there isn't a lot of writeups on this malware family.
 			The sample I came across seems fairly straight-forward and has some unique characteristics. What follows is my attempt and providing some analysis for the community. </p>
 			<br>
-			<p>Kryptik is an information stealer targeting credentials in browsers, mail clients, and FTP clients. It also has keystroke logging and clipboard data exfiltration capabilities. This malware family is identified by Microsoft Defender as <a href="https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan:Win32/Kryptik&ThreatID=2147727763" target="_blank"></a>Trojan:Win32/Kryptik</a>. At the time of this writing Defender was correctly identifying this sample. </p>
+			<p>Kryptik is an information stealer targeting credentials in browsers, mail clients, and FTP clients. It also has keystroke logging and clipboard data exfiltration capabilities. It uses compromised smtp credentials to send data to the adversary. This malware family is identified by Microsoft Defender as <a href="https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan:Win32/Kryptik&ThreatID=2147727763" target="_blank"></a>Trojan:Win32/Kryptik</a>. At the time of this writing Defender was correctly identifying this sample. </p>
 			<br>
 			<p>I've tried to structure this write-up around <a href="https://attack.mitre.org/matrices/enterprise/" target="_blank">MITRE's ATTACK framework</a> and provide links to Red Canary's <a href="https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/index.md" target="_blank">Atomic Red Team</a> tests to show defenders how they can detect the TTPs.</p>
 			<br>
